@@ -4,6 +4,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
+const encrypt = require("mongoose-encryption");
 
 ////// Variables
 const port = 3000;
@@ -12,13 +13,15 @@ const port = 3000;
 // Connection
 mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
 // Schemas
-const userSchema = {
+const userSchema = new mongoose.Schema({
 	email: String,
 	password: String
-};
+});
+// Encryption
+const secret = "Heresyourlongstring";
+userSchema.plugin(encrypt, {secret: secret, encryptedFields: ["password"]});
 // Models
-const User = new mongoose.model("User", userSchema)
-
+const User = new mongoose.model("User", userSchema);
 ////// Express
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended: true}));
