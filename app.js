@@ -53,6 +53,26 @@ app.post("/register", function (req, res) {
 	});
 });
 
+app.post("/login", function (req, res) {
+	const username = req.body.username;
+	const password = req.body.password;
+	User.findOne({email: username}, function (err, foundUser) {
+		if (!err) {
+			if (foundUser) {
+				if (foundUser.password === password) {
+					res.render("secrets");
+				} else {
+					res.send("Wrong answer pal.");
+				}
+			} else {
+				res.send("I dunno, I ain't never hearda no mayor..");
+			}
+		} else {
+			res.send(err);
+		}
+	});
+});
+
 // Listen
 app.listen(port, function () {
 		console.log("Server started on port " + port);
