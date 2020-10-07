@@ -73,6 +73,21 @@ passport.use(
 	)
 );
 
+passport.use(
+	new GitHubStrategy(
+		{
+			clientID: process.env.GITHUB_CLIENT_ID,
+			clientSecret: process.env.GITHUB_CLIENT_SECRET,
+			callbackURL: "http://localhost:3000/auth/github/secrets"
+		},
+		function(accessToken, refreshToken, profile, done) {
+			User.findOrCreate({ githubId: profile.id }, function (err, user) {
+				return done(err, user);
+			});
+		}
+	)
+);
+
 ////// Express Methods
 // GET
 app.get("/", function (req, res) {
@@ -87,6 +102,18 @@ app.get(
 app.get(
 	"/auth/google/secrets",
 	passport.authenticate("google", {failureRedirect: "/login"}),
+	function (req, res) {
+		res.redirect("/secrets")
+	});
+
+app.get(
+	"/auth/github",
+	passport.authenticate("github", {scope: ["user:email"]})
+);
+
+app.get(
+	"/auth/github/secrets",
+	passport.authenticate("github", {failureRedirect: "/login"}),
 	function (req, res) {
 		res.redirect("/secrets")
 	});
